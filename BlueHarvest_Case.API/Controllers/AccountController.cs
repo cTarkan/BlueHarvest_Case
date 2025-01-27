@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlueHarvest_Case.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BlueHarvest_Case.API.Controllers
 {
@@ -15,10 +16,18 @@ namespace BlueHarvest_Case.API.Controllers
 
 		[HttpPost]
 		[Route("create")]
-		public async Task<IActionResult> CreateAccount([FromQuery] int customerId)
+		public async Task<IActionResult> CreateAccount([FromQuery] int customerId, [FromQuery] decimal initialCredit)
 		{
-			var account = await _accountService.CreateAccountAsync(customerId);
+			var account = await _accountService.CreateAccountAsync(customerId, initialCredit);
 			return Ok(account);
+		}
+
+		[HttpGet]
+		[Route("{customerId}/accounts")]
+		public async Task<IActionResult> GetAccountsByCustomerId(int customerId)
+		{
+			var accounts = await _accountService.GetAccountsByCustomerIdAsync(customerId);
+			return Ok(accounts);
 		}
 	}
 }
