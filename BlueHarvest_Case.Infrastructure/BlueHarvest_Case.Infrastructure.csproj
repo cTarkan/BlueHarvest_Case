@@ -15,8 +15,4 @@
     <ProjectReference Include="..\BlueHarvest_Case.Domain\BlueHarvest_Case.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>
