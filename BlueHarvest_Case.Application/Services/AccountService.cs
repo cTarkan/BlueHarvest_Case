@@ -8,16 +8,25 @@ namespace BlueHarvest_Case.Application.Services
 	public class AccountService : IAccountService
 	{
 		private readonly IAccountRepository _accountRepository;
+		private readonly ITransactionService _transactionService;
 
-		public AccountService(IAccountRepository accountRepository)
+		public AccountService(IAccountRepository accountRepository, ITransactionService transactionService)
 		{
 			_accountRepository = accountRepository;
+			_transactionService = transactionService;
 		}
 
 		public async Task<Account> CreateAccountAsync(int customerId, decimal initialCredit)
 		{
-			var account = new Account(customerId, initialCredit);
+			var account = new Account(customerId, 0);
 			await _accountRepository.AddAsync(account);
+
+			if (initialCredit > 0)
+			{
+				await _transactionService.AddTransactionAsync(account.Id, initialCredit);
+				account.Balance += initialCredit;
+			}
+
 			return account;
 		}
 

@@ -14,6 +14,8 @@ namespace BlueHarvest_Case.Application
 			services.AddInfrastructureServices(configuration);
 
 			services.AddScoped<IAccountService, AccountService>();
+			services.AddScoped<ITransactionService, TransactionService>();
+			services.AddScoped<IUserAccountService, UserAccountService>();
 
 			return services;
 		}
