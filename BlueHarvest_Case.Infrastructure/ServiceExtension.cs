@@ -10,6 +10,8 @@ namespace BlueHarvest_Case.Infrastructure
 		public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
 		{
 			services.AddSingleton<IAccountRepository, AccountRepository>();
+			services.AddSingleton<ITransactionRepository, TransactionRepository>();
+
 			return services;
 		}
 	}
