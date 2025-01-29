@@ -24,11 +24,10 @@ namespace BlueHarvest_Case.Tests.Integration
 		public async Task AddTransaction_ShouldReturnOk()
 		{
 			// Arrange
-			var accountId = 1;
-			var amount = 50;
+			var request = new { accountId = 1, amount = 50 };
 
 			// Act
-			var response = await _client.PostAsync($"/api/transaction/add?accountId={accountId}&amount={amount}", null);
+			var response = await _client.PostAsJsonAsync("/api/transaction/add", request);
 
 			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -39,13 +38,13 @@ namespace BlueHarvest_Case.Tests.Integration
 		{
 			// Arrange
 			var customerId = 1;
-			var accountId = 1;
-			var amount = 50;
+			var accountRequest = new { customerId, initialCredit = 0 };
+			var transactionRequest = new { accountId = 1, amount = 50 };
 
-			var createAccountResponse = await _client.PostAsync($"/api/account/create?customerId={customerId}&initialCredit=0", null);
+			var createAccountResponse = await _client.PostAsJsonAsync("/api/account/create", accountRequest);
 			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-			var addTransactionResponse = await _client.PostAsync($"/api/transaction/add?accountId={accountId}&amount={amount}", null);
+			var addTransactionResponse = await _client.PostAsJsonAsync("/api/transaction/add", transactionRequest);
 			addTransactionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 			var response = await _client.GetAsync($"/api/transaction/{customerId}/transactions");
