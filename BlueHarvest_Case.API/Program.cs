@@ -1,13 +1,15 @@
 using BlueHarvest_Case.API.Middlewares;
 using BlueHarvest_Case.Application;
+using BlueHarvest_Case.Application.Validators;
+using FluentValidation;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 
+builder.Services.AddValidatorsFromAssemblyContaining<CreateAccountRequestValidator>();
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
@@ -47,19 +49,15 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+	app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowSwaggerUI");
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
 
-namespace BlueHarvest_Case.API
-{
-	public partial class Program { }
-}
+// Required for WebApplicationFactory<T> in integration tests
+namespace BlueHarvest_Case.API { public partial class Program { } }
