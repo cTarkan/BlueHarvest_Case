@@ -20,11 +20,10 @@ namespace BlueHarvest_Case.Tests.Integration
 		public async Task CreateAccount_WithInitialCredit_ShouldReturnAccountWithTransaction()
 		{
 			// Arrange
-			var customerId = 1;
-			var initialCredit = 100;
+			var request = new { customerId = 1, initialCredit = 100 };
 
 			// Act
-			var response = await _client.PostAsync($"/api/account/create?customerId={customerId}&initialCredit={initialCredit}", null);
+			var response = await _client.PostAsJsonAsync("/api/account/create", request);
 
 			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -54,14 +53,22 @@ namespace BlueHarvest_Case.Tests.Integration
 		public async Task AddTransaction_ShouldUpdateBalance()
 		{
 			// Arrange
-			var accountId = 1;
-			var amount = 50;
+			var accountRequest = new { customerId = 1, initialCredit = 0 };
+			var transactionRequest = new { accountId = 1, amount = 50 };
 
-			// Act
-			var response = await _client.PostAsync($"/api/transaction/add?accountId={accountId}&amount={amount}", null);
+			var createAccountResponse = await _client.PostAsJsonAsync("/api/account/create", accountRequest);
+			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-			// Assert
-			response.StatusCode.Should().Be(HttpStatusCode.OK);
+			// Act 
+			var addTransactionResponse = await _client.PostAsJsonAsync("/api/transaction/add", transactionRequest);
+			addTransactionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+			// Assert 
+			var userDetailsResponse = await _client.GetAsync($"/api/user/1/details");
+			userDetailsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+			var result = await userDetailsResponse.Content.ReadFromJsonAsync<JsonElement>();
+			result.GetProperty("totalBalance").GetDecimal().Should().Be(50);
 		}
 	}
 }
