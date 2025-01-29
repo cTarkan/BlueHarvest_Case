@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
 	options.AddPolicy("AllowSwaggerUI", policy =>
 	{
 		//#TODO check localhost may cause security leak
-		policy.WithOrigins("http://localhost:8081")
+		policy.WithOrigins("http://localhost:8081", "http://localhost:3000")
 		  .AllowAnyHeader()
 		  .AllowAnyMethod()
 		  .AllowCredentials();
