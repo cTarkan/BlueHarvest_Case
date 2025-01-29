@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http.Json;
 using System.Net;
 using System.Text.Json;
+using BlueHarvest_Case.Application.Services;
 
 
 namespace BlueHarvest_Case.Tests.Integration
@@ -20,11 +21,10 @@ namespace BlueHarvest_Case.Tests.Integration
 		public async Task CreateAccount_WithInitialCredit_ShouldReturnAccountWithTransaction()
 		{
 			// Arrange
-			var customerId = 1;
-			var initialCredit = 100;
+			var request = new { customerId = 1, initialCredit = 100 };
 
 			// Act
-			var response = await _client.PostAsync($"/api/account/create?customerId={customerId}&initialCredit={initialCredit}", null);
+			var response = await _client.PostAsJsonAsync("/api/account/create", request);
 
 			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -53,15 +53,33 @@ namespace BlueHarvest_Case.Tests.Integration
 		[Fact]
 		public async Task AddTransaction_ShouldUpdateBalance()
 		{
-			// Arrange
-			var accountId = 1;
-			var amount = 50;
+			// Arrange 
+			var uniqueCustomerId = Math.Abs(Guid.NewGuid().GetHashCode() % 100000);
+			Console.WriteLine($"Generated customerId: {uniqueCustomerId}");
 
-			// Act
-			var response = await _client.PostAsync($"/api/transaction/add?accountId={accountId}&amount={amount}", null);
+			UserMockService.AddUser(uniqueCustomerId, "Test", "User");
 
-			// Assert
-			response.StatusCode.Should().Be(HttpStatusCode.OK);
+			var accountRequest = new { customerId = uniqueCustomerId, initialCredit = 0 };
+
+			var createAccountResponse = await _client.PostAsJsonAsync("/api/account/create", accountRequest);
+			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+			var createdAccount = await createAccountResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var accountId = createdAccount.GetProperty("id").GetInt32();
+
+			var transactionRequest = new { accountId, amount = 50 };
+
+			// Act 
+			var addTransactionResponse = await _client.PostAsJsonAsync("/api/transaction/add", transactionRequest);
+			addTransactionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+			// Assert 
+			var userDetailsResponse = await _client.GetAsync($"/api/user/{uniqueCustomerId}/details");
+			userDetailsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+			var result = await userDetailsResponse.Content.ReadFromJsonAsync<JsonElement>();
+			result.GetProperty("totalBalance").GetDecimal().Should().Be(50);
+
 		}
 	}
 }
