@@ -1,3 +1,4 @@
+using BlueHarvest_Case.API.Middlewares;
 using BlueHarvest_Case.Application;
 using Microsoft.OpenApi.Models;
 
@@ -40,6 +41,8 @@ builder.Services.AddOpenApi(options =>
 builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
