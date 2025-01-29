@@ -21,30 +21,33 @@ namespace BlueHarvest_Case.Application.Services
 			if (user == null) return null;
 
 			var accounts = await _accountRepository.GetByCustomerIdAsync(customerId);
-			decimal totalBalance = accounts.Sum(a => a.Balance);
 
 			var accountDetails = new List<AccountDetailsDto>();
+			decimal totalBalance = 0;
 
 			foreach (var account in accounts)
 			{
 				var transactions = await _transactionRepository.GetByAccountIdAsync(account.Id);
+				decimal transactionTotal = transactions.Sum(t => t.Amount);
+
 				accountDetails.Add(new AccountDetailsDto
 				{
 					AccountId = account.Id,
-					Balance = transactions.Sum(x=>x.Amount),
+					Balance = transactionTotal,
 					Transactions = transactions.Select(t => new TransactionDto
 					{
 						Amount = t.Amount,
 						Timestamp = t.Timestamp
 					}).ToList()
 				});
+				totalBalance += transactionTotal;
 			}
 
 			return new UserAccountDetailsDto
 			{
 				Name = user.Value.Name,
 				Surname = user.Value.Surname,
-				TotalBalance = accountDetails.Sum(x=>x.Balance),
+				TotalBalance = totalBalance, 
 				Accounts = accountDetails
 			};
 		}

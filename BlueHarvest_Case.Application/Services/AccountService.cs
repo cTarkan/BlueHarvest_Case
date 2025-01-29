@@ -18,6 +18,11 @@ namespace BlueHarvest_Case.Application.Services
 
 		public async Task<Account> CreateAccountAsync(int customerId, decimal initialCredit)
 		{
+			if (initialCredit < 0)
+			{
+				throw new ArgumentException("Initial credit cannot be negative.");
+			}
+
 			var account = new Account(customerId, 0);
 			await _accountRepository.AddAsync(account);
 
