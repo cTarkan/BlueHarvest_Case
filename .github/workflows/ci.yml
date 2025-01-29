@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '9.0'
 
       - name: 📦 Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore BlueHarvest_Case.sln
 
       - name: 🏗️ Build Solution
         run: dotnet build --no-restore --configuration Release
