@@ -30,3 +30,15 @@ services:
       - web 
     networks:
       - BlueHarvest_Network
+
+  frontend:
+    build:
+      context: ./blueharvest_case.frontend
+      dockerfile: Dockerfile
+    container_name: blueharvest-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - web
+    networks:
+      - BlueHarvest_Network
