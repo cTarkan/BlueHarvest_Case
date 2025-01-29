@@ -11,6 +11,7 @@ namespace BlueHarvest_Case.Infrastructure.Repositories
 		{
 			transaction.Id = _transactions.Count + 1;
 			_transactions.Add(transaction);
+			Console.WriteLine($"Transaction Added: ID={transaction.Id}, AccountID={transaction.AccountId}, Amount={transaction.Amount}");
 			return Task.CompletedTask;
 		}
 
@@ -21,3 +22,4 @@ namespace BlueHarvest_Case.Infrastructure.Repositories
 		}
 	}
 }
+
