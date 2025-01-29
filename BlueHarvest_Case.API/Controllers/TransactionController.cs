@@ -1,4 +1,7 @@
-﻿using BlueHarvest_Case.Application.Interfaces;
+﻿using BlueHarvest_Case.API.DTOs;
+using BlueHarvest_Case.Application.DTOs;
+using BlueHarvest_Case.Application.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueHarvest_Case.API.Controllers
@@ -8,17 +11,22 @@ namespace BlueHarvest_Case.API.Controllers
 	public class TransactionController : ControllerBase
 	{
 		private readonly ITransactionService _transactionService;
-
-		public TransactionController(ITransactionService transactionService)
+		private readonly IValidator<AddTransactionRequest> _validator;
+		public TransactionController(ITransactionService transactionService, IValidator<AddTransactionRequest> validator)
 		{
 			_transactionService = transactionService;
+			_validator = validator;
 		}
 
 		[HttpPost]
 		[Route("add")]
-		public async Task<IActionResult> AddTransaction([FromQuery] int accountId, [FromQuery] decimal amount)
+		public async Task<IActionResult> AddTransaction([FromBody] AddTransactionRequest request)
 		{
-			await _transactionService.AddTransactionAsync(accountId, amount);
+			var validationResult = await _validator.ValidateAsync(request);
+			if (!validationResult.IsValid)
+				throw new ValidationException(validationResult.Errors);
+
+			await _transactionService.AddTransactionAsync(request.AccountId, request.Amount);
 			return Ok();
 		}
 

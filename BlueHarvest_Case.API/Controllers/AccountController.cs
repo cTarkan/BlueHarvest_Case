@@ -1,4 +1,7 @@
-﻿using BlueHarvest_Case.Application.Interfaces;
+﻿using BlueHarvest_Case.API.DTOs;
+using BlueHarvest_Case.Application.Interfaces;
+using BlueHarvest_Case.Application.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueHarvest_Case.API.Controllers
@@ -8,17 +11,23 @@ namespace BlueHarvest_Case.API.Controllers
 	public class AccountController : ControllerBase
 	{
 		private readonly IAccountService _accountService;
+		private readonly IValidator<CreateAccountRequest> _validator;
 
-		public AccountController(IAccountService accountService)
+		public AccountController(IAccountService accountService, IValidator<CreateAccountRequest> validator)
 		{
 			_accountService = accountService;
+			_validator = validator;
 		}
 
 		[HttpPost]
 		[Route("create")]
-		public async Task<IActionResult> CreateAccount([FromQuery] int customerId, [FromQuery] decimal initialCredit)
+		public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
 		{
-			var account = await _accountService.CreateAccountAsync(customerId, initialCredit);
+			var validationResult = await _validator.ValidateAsync(request);
+			if (!validationResult.IsValid)
+				throw new ValidationException(validationResult.Errors);
+
+			var account = await _accountService.CreateAccountAsync(request.CustomerId, request.InitialCredit);
 			return Ok(account);
 		}
 

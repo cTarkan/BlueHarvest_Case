@@ -1,4 +1,8 @@
-﻿namespace BlueHarvest_Case.API.Middlewares
+﻿using FluentValidation;
+using Newtonsoft.Json;
+using System.Net;
+
+namespace BlueHarvest_Case.API.Middlewares
 {
 	public class ExceptionHandlingMiddleware
 	{
@@ -14,6 +18,10 @@
 			try
 			{
 				await _next(context);
+			}
+			catch (ValidationException ex) // FluentValidation Hatalarını Yakala
+			{
+				await HandleValidationExceptionAsync(context, ex);
 			}
 			catch (Exception ex)
 			{
@@ -34,5 +42,20 @@
 
 			return context.Response.WriteAsJsonAsync(errorDetails);
 		}
+
+		private Task HandleValidationExceptionAsync(HttpContext context, ValidationException exception)
+		{
+			context.Response.ContentType = "application/json";
+			context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+			var errorDetails = new
+			{
+				Message = "Validation failed",
+				Errors = exception.Errors.Select(e => new { e.PropertyName, e.ErrorMessage })
+			};
+
+			return context.Response.WriteAsJsonAsync(errorDetails);
+		}
+
 	}
 }
