@@ -15,10 +15,4 @@
     <ProjectReference Include="..\BlueHarvest_Case.Infrastructure\BlueHarvest_Case.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
