@@ -18,5 +18,14 @@ namespace BlueHarvest_Case.Application.Services
 		{
 			return Users.ContainsKey(customerId) ? Users[customerId] : null;
 		}
+
+		public static void AddUser(int customerId, string name, string surname)
+		{
+			if (!Users.ContainsKey(customerId))
+			{
+				Users.Add(customerId, (name, surname));
+				Console.WriteLine($"New mock user added: {customerId} - {name} {surname}");
+			}
+		}
 	}
 }

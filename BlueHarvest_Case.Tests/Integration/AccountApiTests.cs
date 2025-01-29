@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http.Json;
 using System.Net;
 using System.Text.Json;
+using BlueHarvest_Case.Application.Services;
 
 
 namespace BlueHarvest_Case.Tests.Integration
@@ -52,23 +53,33 @@ namespace BlueHarvest_Case.Tests.Integration
 		[Fact]
 		public async Task AddTransaction_ShouldUpdateBalance()
 		{
-			// Arrange
-			var accountRequest = new { customerId = 1, initialCredit = 0 };
-			var transactionRequest = new { accountId = 1, amount = 50 };
+			// Arrange 
+			var uniqueCustomerId = Math.Abs(Guid.NewGuid().GetHashCode() % 100000);
+			Console.WriteLine($"Generated customerId: {uniqueCustomerId}");
+
+			UserMockService.AddUser(uniqueCustomerId, "Test", "User");
+
+			var accountRequest = new { customerId = uniqueCustomerId, initialCredit = 0 };
 
 			var createAccountResponse = await _client.PostAsJsonAsync("/api/account/create", accountRequest);
 			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+			var createdAccount = await createAccountResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var accountId = createdAccount.GetProperty("id").GetInt32();
+
+			var transactionRequest = new { accountId, amount = 50 };
 
 			// Act 
 			var addTransactionResponse = await _client.PostAsJsonAsync("/api/transaction/add", transactionRequest);
 			addTransactionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 			// Assert 
-			var userDetailsResponse = await _client.GetAsync($"/api/user/1/details");
+			var userDetailsResponse = await _client.GetAsync($"/api/user/{uniqueCustomerId}/details");
 			userDetailsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 			var result = await userDetailsResponse.Content.ReadFromJsonAsync<JsonElement>();
 			result.GetProperty("totalBalance").GetDecimal().Should().Be(50);
+
 		}
 	}
 }
