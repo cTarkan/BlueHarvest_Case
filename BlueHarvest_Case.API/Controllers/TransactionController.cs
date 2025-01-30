@@ -1,7 +1,8 @@
-﻿using BlueHarvest_Case.API.DTOs;
-using BlueHarvest_Case.Application.DTOs;
-using BlueHarvest_Case.Application.Interfaces;
+﻿using BlueHarvest_Case.API.Models.RequestModel;
+using BlueHarvest_Case.Application.Commands;
+using BlueHarvest_Case.Application.Requests;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueHarvest_Case.API.Controllers
@@ -10,31 +11,30 @@ namespace BlueHarvest_Case.API.Controllers
 	[Route("api/[controller]")]
 	public class TransactionController : ControllerBase
 	{
-		private readonly ITransactionService _transactionService;
 		private readonly IValidator<AddTransactionRequest> _validator;
-		public TransactionController(ITransactionService transactionService, IValidator<AddTransactionRequest> validator)
+		private readonly IMediator _mediator;
+		public TransactionController(IValidator<AddTransactionRequest> validator, IMediator mediator)
 		{
-			_transactionService = transactionService;
 			_validator = validator;
+			_mediator = mediator;
 		}
 
 		[HttpPost]
-		[Route("add")]
 		public async Task<IActionResult> AddTransaction([FromBody] AddTransactionRequest request)
 		{
 			var validationResult = await _validator.ValidateAsync(request);
 			if (!validationResult.IsValid)
 				throw new ValidationException(validationResult.Errors);
 
-			await _transactionService.AddTransactionAsync(request.AccountId, request.Amount);
-			return Ok();
+			var transaction = await _mediator.Send(new AddTransactionCommand { AccountId = request.AccountId, Amount = request.Amount });
+			return Ok(transaction);
 		}
 
 		[HttpGet]
-		[Route("{customerId}/transactions")]
+		[Route("{customerId}")]
 		public async Task<IActionResult> GetTransactionsByCustomerId(int customerId)
 		{
-			var transactions = await _transactionService.GetTransactionsByCustomerIdAsync(customerId);
+			var transactions = await _mediator.Send(new GetTransactionsByCustomerIdRequest { CustomerId = customerId });
 			return Ok(transactions);
 		}
 	}
