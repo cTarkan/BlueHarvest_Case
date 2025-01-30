@@ -1,15 +1,15 @@
 version: '3.9'
 
 networks:
-  BlueHarvest_Network:
-    name: BlueHarvest_Network
+  bh_network:
+    name: BH_Network
     driver: bridge
 
 services:
   web:
     build: 
       context: .
-      dockerfile: BlueHarvest_Case.API/Dockerfile
+      dockerfile: BH.Case.API/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -17,11 +17,11 @@ services:
       - DOTNET_USE_POLLING_FILE_WATCHER=1
       - OPENAPI_SERVER_URL=http://localhost:8080
     networks:
-      - BlueHarvest_Network
+      - bh_network
 
   swagger-ui:
     image: swaggerapi/swagger-ui
-    container_name: blueharvest-swagger-ui
+    container_name: BH-swagger-ui
     ports:
       - "8081:8080"
     environment:
@@ -29,16 +29,4 @@ services:
     depends_on:
       - web 
     networks:
-      - BlueHarvest_Network
-
-  frontend:
-    build:
-      context: ./blueharvest_case.frontend
-      dockerfile: Dockerfile
-    container_name: blueharvest-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - web
-    networks:
-      - BlueHarvest_Network
+      - bh_network
