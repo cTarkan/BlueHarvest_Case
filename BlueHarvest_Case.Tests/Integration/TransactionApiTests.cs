@@ -24,10 +24,22 @@ namespace BlueHarvest_Case.Tests.Integration
 		public async Task AddTransaction_ShouldReturnOk()
 		{
 			// Arrange
-			var request = new { accountId = 1, amount = 50 };
+			// Create user first
+			var createUserRequest = new { Name = "John", Surname = "Doe" };
+			var userResponse = await _client.PostAsJsonAsync("/api/user", createUserRequest);
+			var user = await userResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var userId = user.GetProperty("id").GetInt32();
+
+			// Create account
+			var accountRequest = new { CustomerId = userId, InitialCredit = 0 };
+			var createAccountResponse = await _client.PostAsJsonAsync("/api/account", accountRequest);
+			var createdAccount = await createAccountResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var accountId = createdAccount.GetProperty("id").GetInt32();
+
+			var transactionRequest = new { AccountId = accountId, Amount = 50 };
 
 			// Act
-			var response = await _client.PostAsJsonAsync("/api/transaction/add", request);
+			var response = await _client.PostAsJsonAsync("/api/transaction", transactionRequest);
 
 			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -37,22 +49,35 @@ namespace BlueHarvest_Case.Tests.Integration
 		public async Task GetTransactionsByCustomerId_ShouldReturnTransactions()
 		{
 			// Arrange
-			var customerId = 1;
-			var accountRequest = new { customerId, initialCredit = 0 };
-			var transactionRequest = new { accountId = 1, amount = 50 };
+			// Create user first
+			var createUserRequest = new { Name = "John", Surname = "Doe" };
+			var userResponse = await _client.PostAsJsonAsync("/api/user", createUserRequest);
+			var user = await userResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var userId = user.GetProperty("id").GetInt32();
 
-			var createAccountResponse = await _client.PostAsJsonAsync("/api/account/create", accountRequest);
-			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+			// Create account
+			var accountRequest = new { CustomerId = userId, InitialCredit = 0 };
+			var createAccountResponse = await _client.PostAsJsonAsync("/api/account", accountRequest);
+			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
-			var addTransactionResponse = await _client.PostAsJsonAsync("/api/transaction/add", transactionRequest);
+			var createdAccount = await createAccountResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var accountId = createdAccount.GetProperty("id").GetInt32();
+
+			// Add transaction
+			var transactionRequest = new { AccountId = accountId, Amount = 50 };
+			var addTransactionResponse = await _client.PostAsJsonAsync("/api/transaction", transactionRequest);
 			addTransactionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-			var response = await _client.GetAsync($"/api/transaction/{customerId}/transactions");
+			// Act
+			var response = await _client.GetAsync($"/api/user/{userId}/details");
 
 			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
-			var result = await response.Content.ReadFromJsonAsync<JsonElement>();
-			result.GetArrayLength().Should().BeGreaterThan(0);
+			var userDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
+			var transactions = userDetails.GetProperty("accounts").EnumerateArray()
+				.First(a => a.GetProperty("accountId").GetInt32() == accountId)
+				.GetProperty("transactions");
+			transactions.GetArrayLength().Should().BeGreaterThan(0);
 		}
 	}
 }

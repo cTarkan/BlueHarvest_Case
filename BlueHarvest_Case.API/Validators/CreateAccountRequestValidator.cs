@@ -1,4 +1,4 @@
-﻿using BlueHarvest_Case.API.DTOs;
+﻿using BlueHarvest_Case.API.Models.RequestModel;
 using FluentValidation;
 
 namespace BlueHarvest_Case.Application.Validators

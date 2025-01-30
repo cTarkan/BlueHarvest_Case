@@ -23,10 +23,21 @@ namespace BlueHarvest_Case.API.Middlewares
 			{
 				await HandleValidationExceptionAsync(context, ex);
 			}
+			catch (KeyNotFoundException ex)
+			{
+				await HandleKeyNotFoundExceptionAsync(context, ex);
+			}
 			catch (Exception ex)
 			{
 				await HandleGenericExceptionAsync(context, ex);
 			}
+		}
+
+		private Task HandleKeyNotFoundExceptionAsync(HttpContext context, KeyNotFoundException exception)
+		{
+			context.Response.ContentType = "application/json";
+			context.Response.StatusCode = StatusCodes.Status404NotFound;
+			return context.Response.WriteAsJsonAsync(new { Message = exception.Message });
 		}
 
 		private Task HandleGenericExceptionAsync(HttpContext context, Exception exception)

@@ -1,6 +1,4 @@
-﻿using BlueHarvest_Case.Application.Interfaces;
-using BlueHarvest_Case.Application.Services;
-using BlueHarvest_Case.Infrastructure;
+﻿using BlueHarvest_Case.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,11 +9,10 @@ namespace BlueHarvest_Case.Application
 	{
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
 		{
-			services.AddInfrastructureServices(configuration);
+			// MediatR for CQRS and Handlers
+			services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
-			services.AddScoped<IAccountService, AccountService>();
-			services.AddScoped<ITransactionService, TransactionService>();
-			services.AddScoped<IUserAccountService, UserAccountService>();
+			services.AddInfrastructureServices(configuration);
 
 			return services;
 		}

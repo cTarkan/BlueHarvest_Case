@@ -11,6 +11,7 @@ namespace BlueHarvest_Case.Infrastructure
 		{
 			services.AddSingleton<IAccountRepository, AccountRepository>();
 			services.AddSingleton<ITransactionRepository, TransactionRepository>();
+			services.AddSingleton<IUserRepository, UserRepository>();
 
 			return services;
 		}

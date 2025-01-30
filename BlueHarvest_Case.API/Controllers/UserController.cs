@@ -1,4 +1,7 @@
-﻿using BlueHarvest_Case.Application.Interfaces;
+﻿using BlueHarvest_Case.API.Models.RequestModel;
+using BlueHarvest_Case.Application.Commands;
+using BlueHarvest_Case.Application.Requests;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueHarvest_Case.API.Controllers
@@ -7,21 +10,36 @@ namespace BlueHarvest_Case.API.Controllers
 	[Route("api/[controller]")]
 	public class UserController : ControllerBase
 	{
-		private readonly IUserAccountService _userAccountService;
+		private readonly IMediator _mediator;
 
-		public UserController(IUserAccountService userAccountService)
+		public UserController(IMediator mediator)
 		{
-			_userAccountService = userAccountService;
+			_mediator = mediator;
 		}
 
 		[HttpGet]
 		[Route("{customerId}/details")]
 		public async Task<IActionResult> GetUserAccountDetails(int customerId)
 		{
-			var details = await _userAccountService.GetUserAccountDetailsAsync(customerId);
+			var details = await _mediator.Send(new GetUserAccountDetailRequest { CustomerId = customerId });
 			if (details == null) return NotFound("User not found.");
-
+		
 			return Ok(details);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
+		{
+			var user = await _mediator.Send(new CreateUserCommand { Name = request.Name, Surname = request.Surname });
+			return Ok(user);
+		}
+
+		[HttpGet]
+		[Route("{customerId}")]
+		public async Task<IActionResult> GetUserById(int customerId)
+		{
+			var user = await _mediator.Send(new GetUserByIdRequest { UserId = customerId });
+			return Ok(user);
 		}
 	}
 }

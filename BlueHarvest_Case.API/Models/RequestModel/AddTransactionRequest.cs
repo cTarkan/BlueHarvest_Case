@@ -1,4 +1,4 @@
-﻿namespace BlueHarvest_Case.API.DTOs
+﻿namespace BlueHarvest_Case.API.Models.RequestModel
 {
 	public class AddTransactionRequest
 	{

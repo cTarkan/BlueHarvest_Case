@@ -1,7 +1,8 @@
-﻿using BlueHarvest_Case.API.DTOs;
-using BlueHarvest_Case.Application.Interfaces;
-using BlueHarvest_Case.Application.Validators;
+﻿using BlueHarvest_Case.API.Models.RequestModel;
+using BlueHarvest_Case.Application.Commands;
+using BlueHarvest_Case.Application.Requests;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueHarvest_Case.API.Controllers
@@ -10,32 +11,30 @@ namespace BlueHarvest_Case.API.Controllers
 	[Route("api/[controller]")]
 	public class AccountController : ControllerBase
 	{
-		private readonly IAccountService _accountService;
 		private readonly IValidator<CreateAccountRequest> _validator;
+		private readonly IMediator _mediator;
 
-		public AccountController(IAccountService accountService, IValidator<CreateAccountRequest> validator)
+		public AccountController(IValidator<CreateAccountRequest> validator, IMediator mediator)
 		{
-			_accountService = accountService;
 			_validator = validator;
+			_mediator = mediator;
 		}
 
 		[HttpPost]
-		[Route("create")]
 		public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
 		{
 			var validationResult = await _validator.ValidateAsync(request);
 			if (!validationResult.IsValid)
 				throw new ValidationException(validationResult.Errors);
 
-			var account = await _accountService.CreateAccountAsync(request.CustomerId, request.InitialCredit);
-			return Ok(account);
+			var account = await _mediator.Send(new CreateAccountCommand { CustomerId = request.CustomerId, InitialCredit = request.InitialCredit });
+			return StatusCode(StatusCodes.Status201Created, account);
 		}
 
-		[HttpGet]
-		[Route("{customerId}/accounts")]
-		public async Task<IActionResult> GetAccountsByCustomerId(int customerId)
+		[HttpGet("{customerId}")]
+		public async Task<IActionResult> GetCustomerAccount(int customerId)
 		{
-			var accounts = await _accountService.GetAccountsByCustomerIdAsync(customerId);
+			var accounts = await _mediator.Send(new GetAccountsByCustomerIdRequest { CustomerId = customerId });
 			return Ok(accounts);
 		}
 	}
