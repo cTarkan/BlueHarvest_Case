@@ -1,6 +1,7 @@
 ﻿using BH.Case.Application.Commands;
 using BH.Case.Domain.Entities;
 using BH.Case.Infrastructure.Interfaces;
+using BH.Case.Infrastructure.Repositories;
 using MediatR;
 
 namespace BH.Case.Application.Handlers
@@ -9,13 +10,13 @@ namespace BH.Case.Application.Handlers
 	{
 		private readonly IAccountRepository _accountRepository;
 		private readonly ITransactionRepository _transactionRepository;
-		private readonly IUserRepository _userRepository;
+		private readonly ICustomerRepository _customerRepository;
 
-		public CreateAccountCommandHandler(IAccountRepository accountRepository, ITransactionRepository transactionRepository, IUserRepository userRepository)
+		public CreateAccountCommandHandler(IAccountRepository accountRepository, ITransactionRepository transactionRepository, ICustomerRepository customerRepository)
 		{
 			_accountRepository = accountRepository;
 			_transactionRepository = transactionRepository;
-			_userRepository = userRepository;
+			_customerRepository = customerRepository;
 		}
 
 		public async Task<Account> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
@@ -25,8 +26,8 @@ namespace BH.Case.Application.Handlers
 				throw new ArgumentException("Initial credit cannot be negative.");
 			}
 
-			var existingUser = await _userRepository.GetByIdAsync(request.CustomerId);
-			if (existingUser == null)
+			var existingCustomer = await _customerRepository.GetByIdAsync(request.CustomerId);
+			if (existingCustomer == null)
 			{
 				throw new KeyNotFoundException("Customer does not exist.");
 			}

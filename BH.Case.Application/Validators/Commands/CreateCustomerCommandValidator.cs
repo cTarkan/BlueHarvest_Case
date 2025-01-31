@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace BH.Case.Application.Validators.Commands
 {
-    public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
+    public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCommand>
     {
-        public CreateUserCommandValidator()
+        public CreateCustomerCommandValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty()

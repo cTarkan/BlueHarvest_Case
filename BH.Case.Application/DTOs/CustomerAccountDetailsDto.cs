@@ -1,6 +1,6 @@
 ﻿namespace BH.Case.Application.DTOs
 {
-	public class UserAccountDetailsDto
+	public class CustomerAccountDetailsDto
 	{
 		public string Name { get; set; }
 		public string Surname { get; set; }

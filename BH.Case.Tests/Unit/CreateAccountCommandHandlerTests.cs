@@ -9,16 +9,16 @@ namespace BH.Case.Tests.Unit
 	public class CreateAccountCommandHandlerTests
 	{
 		private readonly Mock<IAccountRepository> _accountRepositoryMock;
-		private readonly Mock<IUserRepository> _userRepositoryMock;
+		private readonly Mock<ICustomerRepository> _customerRepositoryMock;
 		private readonly Mock<ITransactionRepository> _transactionRepositoryMock;
 		private readonly CreateAccountCommandHandler _handler;
 
 		public CreateAccountCommandHandlerTests()
 		{
 			_accountRepositoryMock = new Mock<IAccountRepository>();
-			_userRepositoryMock = new Mock<IUserRepository>();
+			_customerRepositoryMock = new Mock<ICustomerRepository>();
 			_transactionRepositoryMock = new Mock<ITransactionRepository>();
-			_handler = new CreateAccountCommandHandler(_accountRepositoryMock.Object, _transactionRepositoryMock.Object, _userRepositoryMock.Object);
+			_handler = new CreateAccountCommandHandler(_accountRepositoryMock.Object, _transactionRepositoryMock.Object, _customerRepositoryMock.Object);
 		}
 
 		[Fact]
@@ -26,10 +26,10 @@ namespace BH.Case.Tests.Unit
 		{
 			// Arrange
 			var command = new CreateAccountCommand { CustomerId = 1 };
-			var user = new User { Id = 1, Name = "Test", Surname = "User" };
+			var customer = new Customer { Id = 1, Name = "Test", Surname = "Customer" };
 
-			_userRepositoryMock.Setup(x => x.GetByIdAsync(command.CustomerId))
-				.ReturnsAsync(user);
+			_customerRepositoryMock.Setup(x => x.GetByIdAsync(command.CustomerId))
+				.ReturnsAsync(customer);
 
 			// Act
 			var result = await _handler.Handle(command, CancellationToken.None);
@@ -41,13 +41,13 @@ namespace BH.Case.Tests.Unit
 		}
 
 		[Fact]
-		public async Task Handle_WithInvalidUserId_ShouldThrowKeyNotFoundException()
+		public async Task Handle_WithInvalidCustomerId_ShouldThrowKeyNotFoundException()
 		{
 			// Arrange
 			var command = new CreateAccountCommand { CustomerId = 999 };
 
-			_userRepositoryMock.Setup(x => x.GetByIdAsync(command.CustomerId))
-				.ReturnsAsync((User?)null);
+			_customerRepositoryMock.Setup(x => x.GetByIdAsync(command.CustomerId))
+				.ReturnsAsync((Customer?)null);
 
 			// Act & Assert
 			await Assert.ThrowsAsync<KeyNotFoundException>(() => 

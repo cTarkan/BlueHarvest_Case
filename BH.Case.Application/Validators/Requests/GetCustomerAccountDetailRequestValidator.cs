@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace BH.Case.Application.Validators.Requests
 {
-    public class GetUserAccountDetailRequestValidator : AbstractValidator<GetUserAccountDetailRequest>
+    public class GetCustomerAccountDetailRequestValidator : AbstractValidator<GetCustomerAccountDetailRequest>
     {
-        public GetUserAccountDetailRequestValidator()
+        public GetCustomerAccountDetailRequestValidator()
         {
             RuleFor(x => x.CustomerId)
                 .GreaterThan(0)

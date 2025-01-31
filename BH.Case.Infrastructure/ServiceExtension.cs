@@ -11,7 +11,7 @@ namespace BH.Case.Infrastructure
 		{
 			services.AddSingleton<IAccountRepository, AccountRepository>();
 			services.AddSingleton<ITransactionRepository, TransactionRepository>();
-			services.AddSingleton<IUserRepository, UserRepository>();
+			services.AddSingleton<ICustomerRepository, CustomerRepository>();
 
 			return services;
 		}

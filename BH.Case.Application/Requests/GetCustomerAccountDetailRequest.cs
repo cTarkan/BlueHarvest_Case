@@ -4,7 +4,7 @@ using MediatR;
 
 namespace BH.Case.Application.Requests
 {
-	public class GetUserAccountDetailRequest : IRequest<UserAccountDetailsDto> 
+	public class GetCustomerAccountDetailRequest : IRequest<CustomerAccountDetailsDto> 
 	{
 		public int CustomerId { get; set; }
 	}
