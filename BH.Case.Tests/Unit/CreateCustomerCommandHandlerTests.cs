@@ -7,22 +7,22 @@ using Xunit;
 
 namespace BH.Case.Tests.Unit
 {
-	public class CreateUserCommandHandlerTests
+	public class CreateCustomerCommandHandlerTests
 	{
-		private readonly Mock<IUserRepository> _userRepositoryMock;
-		private readonly CreateUserCommandHandler _handler;
+		private readonly Mock<ICustomerRepository> _customerRepositoryMock;
+		private readonly CreateCustomerCommandHandler _handler;
 
-		public CreateUserCommandHandlerTests()
+		public CreateCustomerCommandHandlerTests()
 		{
-			_userRepositoryMock = new Mock<IUserRepository>();
-			_handler = new CreateUserCommandHandler(_userRepositoryMock.Object);
+			_customerRepositoryMock = new Mock<ICustomerRepository>();
+			_handler = new CreateCustomerCommandHandler(_customerRepositoryMock.Object);
 		}
 
 		[Fact]
-		public async Task Handle_WithValidRequest_ShouldCreateUser()
+		public async Task Handle_WithValidRequest_ShouldCreateCustomer()
 		{
 			// Arrange
-			var command = new CreateUserCommand 
+			var command = new CreateCustomerCommand 
 			{ 
 				Name = "John",
 				Surname = "Doe"
@@ -35,7 +35,7 @@ namespace BH.Case.Tests.Unit
 			Assert.NotNull(result);
 			Assert.Equal(command.Name, result.Name);
 			Assert.Equal(command.Surname, result.Surname);
-			_userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
+			_customerRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Customer>()), Times.Once);
 		}
 
 		[Theory]
@@ -46,7 +46,7 @@ namespace BH.Case.Tests.Unit
 		public async Task Handle_WithInvalidData_ShouldThrowArgumentException(string name, string surname)
 		{
 			// Arrange
-			var command = new CreateUserCommand
+			var command = new CreateCustomerCommand
 			{
 				Name = name,
 				Surname = surname
@@ -56,7 +56,7 @@ namespace BH.Case.Tests.Unit
 			await Assert.ThrowsAsync<ArgumentException>(async () =>
 				await _handler.Handle(command, CancellationToken.None));
 
-			_userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
+			_customerRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Customer>()), Times.Never);
 		}
 	}
 }

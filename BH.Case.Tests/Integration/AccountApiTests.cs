@@ -21,12 +21,12 @@ namespace BH.Case.Tests.Integration
 		public async Task CreateAccount_WithInitialCredit_ShouldReturnAccountWithTransaction()
 		{
 			// Arrange
-			var createUserRequest = new { Name = "John", Surname = "Doe" };
-			var userResponse = await _client.PostAsJsonAsync("/api/user", createUserRequest);
-			var user = await userResponse.Content.ReadFromJsonAsync<JsonElement>();
-			var userId = user.GetProperty("id").GetInt32();
+			var createCustomerRequest = new { Name = "John", Surname = "Doe" };
+			var customerResponse = await _client.PostAsJsonAsync("/api/customer", createCustomerRequest);
+			var customer = await customerResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var customerId = customer.GetProperty("id").GetInt32();
 
-			var request = new { CustomerId = userId, InitialCredit = 100 };
+			var request = new { CustomerId = customerId, InitialCredit = 100 };
 
 			// Act
 			var response = await _client.PostAsJsonAsync("/api/account", request);
@@ -35,27 +35,27 @@ namespace BH.Case.Tests.Integration
 			response.StatusCode.Should().Be(HttpStatusCode.Created);
 
 			var result = await response.Content.ReadFromJsonAsync<JsonElement>();
-			result.GetProperty("customerId").GetInt32().Should().Be(userId);
+			result.GetProperty("customerId").GetInt32().Should().Be(customerId);
 			result.GetProperty("balance").GetDecimal().Should().Be(100);
 			result.GetProperty("id").GetInt32().Should().BeGreaterThan(0);
 		}
 
 		[Fact]
-		public async Task GetUserAccountDetails_ShouldReturnCorrectData()
+		public async Task GetCustomerAccountDetails_ShouldReturnCorrectData()
 		{
 			// Arrange
-			// Create user first
-			var createUserRequest = new { Name = "John", Surname = "Doe" };
-			var userResponse = await _client.PostAsJsonAsync("/api/user", createUserRequest);
-			var user = await userResponse.Content.ReadFromJsonAsync<JsonElement>();
-			var userId = user.GetProperty("id").GetInt32();
+			// Create customer first
+			var createCustomerRequest = new { Name = "John", Surname = "Doe" };
+			var customerResponse = await _client.PostAsJsonAsync("/api/customer", createCustomerRequest);
+			var customer = await customerResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var customerId = customer.GetProperty("id").GetInt32();
 
-			// Create account for the user
-			var accountRequest = new { CustomerId = userId, InitialCredit = 100 };
+			// Create account for the customer
+			var accountRequest = new { CustomerId = customerId, InitialCredit = 100 };
 			await _client.PostAsJsonAsync("/api/account", accountRequest);
 
 			// Act
-			var response = await _client.GetAsync($"/api/account/{userId}");
+			var response = await _client.GetAsync($"/api/account/{customerId}");
 
 			// Assert
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -63,7 +63,7 @@ namespace BH.Case.Tests.Integration
 			var accounts = await response.Content.ReadFromJsonAsync<JsonElement>();
 			var firstAccount = accounts.EnumerateArray().First();
 			
-			firstAccount.GetProperty("customerId").GetInt32().Should().Be(userId);
+			firstAccount.GetProperty("customerId").GetInt32().Should().Be(customerId);
 			firstAccount.GetProperty("balance").GetDecimal().Should().Be(100);
 			firstAccount.GetProperty("id").GetInt32().Should().BeGreaterThan(0);
 		}
@@ -72,14 +72,14 @@ namespace BH.Case.Tests.Integration
 		public async Task AddTransaction_ShouldUpdateBalance()
 		{
 			// Arrange
-			// Create user first
-			var createUserRequest = new { Name = "John", Surname = "Doe" };
-			var userResponse = await _client.PostAsJsonAsync("/api/user", createUserRequest);
-			var user = await userResponse.Content.ReadFromJsonAsync<JsonElement>();
-			var userId = user.GetProperty("id").GetInt32();
+			// Create customer first
+			var createCustomerRequest = new { Name = "John", Surname = "Doe" };
+			var customerResponse = await _client.PostAsJsonAsync("/api/customer", createCustomerRequest);
+			var customer = await customerResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var customerId = customer.GetProperty("id").GetInt32();
 
 			// Create account
-			var accountRequest = new { CustomerId = userId, InitialCredit = 0 };
+			var accountRequest = new { CustomerId = customerId, InitialCredit = 0 };
 			var createAccountResponse = await _client.PostAsJsonAsync("/api/account", accountRequest);
 			createAccountResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -94,11 +94,11 @@ namespace BH.Case.Tests.Integration
 			// Assert
 			addTransactionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-			var userDetailsResponse = await _client.GetAsync($"/api/user/{userId}/details");
-			userDetailsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+			var customerDetailsResponse = await _client.GetAsync($"/api/customer/{customerId}/details");
+			customerDetailsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-			var userDetails = await userDetailsResponse.Content.ReadFromJsonAsync<JsonElement>();
-			var accountDetails = userDetails.GetProperty("accounts").EnumerateArray()
+			var customerDetails = await customerDetailsResponse.Content.ReadFromJsonAsync<JsonElement>();
+			var accountDetails = customerDetails.GetProperty("accounts").EnumerateArray()
 				.First(a => a.GetProperty("accountId").GetInt32() == accountId);
 			accountDetails.GetProperty("balance").GetDecimal().Should().Be(50);
 		}

@@ -5,25 +5,25 @@ using MediatR;
 
 namespace BH.Case.Application.Handlers
 {
-	public class GetUserAccountDetailRequestHandler : IRequestHandler<GetUserAccountDetailRequest, UserAccountDetailsDto>
+	public class GetCustomerAccountDetailRequestHandler : IRequestHandler<GetCustomerAccountDetailRequest, CustomerAccountDetailsDto>
 	{
 		private readonly IAccountRepository _accountRepository;
 		private readonly ITransactionRepository _transactionRepository;
-		private readonly IUserRepository _userRepository;
+		private readonly ICustomerRepository _customerRepository;
 
-		public GetUserAccountDetailRequestHandler(IAccountRepository accountRepository, ITransactionRepository transactionRepository, IUserRepository userRepository)
+		public GetCustomerAccountDetailRequestHandler(IAccountRepository accountRepository, ITransactionRepository transactionRepository, ICustomerRepository customerRepository)
 		{
 			_accountRepository = accountRepository;
 			_transactionRepository = transactionRepository;
-			_userRepository = userRepository;
+			_customerRepository = customerRepository;
 		}
 
-		public async Task<UserAccountDetailsDto> Handle(GetUserAccountDetailRequest request, CancellationToken cancellationToken)
+		public async Task<CustomerAccountDetailsDto> Handle(GetCustomerAccountDetailRequest request, CancellationToken cancellationToken)
 		{
-			var user = await _userRepository.GetByIdAsync(request.CustomerId);
-			if (user == null) 
+			var customer = await _customerRepository.GetByIdAsync(request.CustomerId);
+			if (customer == null) 
             {
-                throw new KeyNotFoundException($"User with ID {request.CustomerId} not found.");
+                throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
             }
 
 			var accounts = await _accountRepository.GetByCustomerIdAsync(request.CustomerId);
@@ -49,10 +49,10 @@ namespace BH.Case.Application.Handlers
 				totalBalance += transactionTotal;
 			}
 
-			return new UserAccountDetailsDto
+			return new CustomerAccountDetailsDto
 			{
-				Name = user.Name,
-				Surname = user.Surname,
+				Name = customer.Name,
+				Surname = customer.Surname,
 				TotalBalance = totalBalance,
 				Accounts = accountDetails
 			};
