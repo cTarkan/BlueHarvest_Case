@@ -1,6 +1,4 @@
 ﻿using FluentValidation;
-using Newtonsoft.Json;
-using System.Net;
 
 namespace BH.Case.API.Middlewares
 {
@@ -19,7 +17,7 @@ namespace BH.Case.API.Middlewares
 			{
 				await _next(context);
 			}
-			catch (ValidationException ex) // FluentValidation Hatalarını Yakala
+			catch (ValidationException ex) 
 			{
 				await HandleValidationExceptionAsync(context, ex);
 			}

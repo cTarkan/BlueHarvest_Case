@@ -5,16 +5,16 @@ using MediatR;
 
 namespace BH.Case.Application.Handlers
 {
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, User>
+    public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Customer>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly ICustomerRepository _cutomerRepository;
 
-        public CreateUserCommandHandler(IUserRepository userRepository)
+        public CreateCustomerCommandHandler(ICustomerRepository cutomerRepository)
         {
-            _userRepository = userRepository;
+            _cutomerRepository = cutomerRepository;
         }
 
-        public async Task<User> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Customer> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
 
             if (string.IsNullOrEmpty(request.Name))
@@ -27,14 +27,14 @@ namespace BH.Case.Application.Handlers
                 throw new ArgumentException("Surname cannot be null or empty.", nameof(request.Surname));
             }
 
-            var user = new User
+            var cutomer = new Customer
             {
                 Name = request.Name,
                 Surname = request.Surname
             };
 
-            await _userRepository.AddAsync(user);
-            return user;
+            await _cutomerRepository.AddAsync(cutomer);
+            return cutomer;
         }
     }
 }

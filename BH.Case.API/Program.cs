@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddValidatorsFromAssemblyContaining<CreateAccountRequestValidator>();
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
