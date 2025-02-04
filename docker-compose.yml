@@ -30,3 +30,16 @@ services:
       - web 
     networks:
       - bh_network
+
+  frontend:
+    build:
+      context: ./BH.Case.Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+    depends_on:
+      - web
+    networks:
+      - bh_network
