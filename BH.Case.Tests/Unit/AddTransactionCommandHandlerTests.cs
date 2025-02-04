@@ -27,8 +27,8 @@ namespace BH.Case.Tests.Unit
 			var command = new AddTransactionCommand { AccountId = 1, Amount = 100 };
 			var account = new Account(1, 0);
 
-			_accountRepositoryMock.Setup(x => x.GetByCustomerIdAsync(command.AccountId))
-				.ReturnsAsync(new List<Account> { account });
+			_accountRepositoryMock.Setup(x => x.GetByIdAsync(command.AccountId))
+				.ReturnsAsync(account);
 
 			// Act
 			var result = await _handler.Handle(command, CancellationToken.None);
