@@ -1,8 +1,8 @@
-# BlueHarvest.Case
+# BH.Case
 
 ## 📌 Project Overview
 
-**BlueHarvest.Case** is a backend-driven financial application that manages user accounts and transactions. The system allows users to **create accounts, perform transactions, and retrieve account details** while ensuring a structured and scalable architecture utilizing **CQRS, MediatR, and FluentValidation**.
+**BH.Case** is a backend-driven financial application that manages user accounts and transactions. The system allows users to **create accounts, perform transactions, and retrieve account details** while ensuring a structured and scalable architecture utilizing **CQRS, MediatR, and FluentValidation**.
 
 ## 🚀 Tech Stack
 
@@ -26,8 +26,8 @@
 
 ```sh
 # Clone the repository
-git clone https://github.com/your-repo/BlueHarvest.Case.git
-cd BlueHarvest.Case
+git clone https://github.com/your-repo/BH.Case.git
+cd BH.Case
 
 # Run Backend
 cd BH.Case.API
