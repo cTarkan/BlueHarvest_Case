@@ -7,5 +7,6 @@ namespace BH.Case.Infrastructure.Interfaces
 	{
 		Task AddAsync(Account account);
 		Task<IEnumerable<Account>> GetByCustomerIdAsync(int customerId);
+		Task<Account?> GetByIdAsync(int accountId);
 	}
 }

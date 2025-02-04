@@ -18,8 +18,7 @@ namespace BH.Case.Application.Handlers
 
 		public async Task<Transaction> Handle(AddTransactionCommand request, CancellationToken cancellationToken)
 		{
-			var accounts = await _accountRepository.GetByCustomerIdAsync(request.AccountId);
-			var account = accounts.FirstOrDefault();
+			var account = await _accountRepository.GetByIdAsync(request.AccountId);
 			if (account == null)
 			{
 				throw new KeyNotFoundException($"Account with ID {request.AccountId} not found.");
