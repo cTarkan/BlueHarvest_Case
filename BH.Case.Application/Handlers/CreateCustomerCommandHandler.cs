@@ -1,5 +1,6 @@
 using BH.Case.Application.Commands;
 using BH.Case.Domain.Entities;
+using BH.Case.Infrastructure.Data;
 using BH.Case.Infrastructure.Interfaces;
 using MediatR;
 
@@ -7,16 +8,19 @@ namespace BH.Case.Application.Handlers
 {
     public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Customer>
     {
-        private readonly ICustomerRepository _cutomerRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateCustomerCommandHandler(ICustomerRepository cutomerRepository)
+        public CreateCustomerCommandHandler(
+            ICustomerRepository customerRepository,
+            IUnitOfWork unitOfWork)
         {
-            _cutomerRepository = cutomerRepository;
+            _customerRepository = customerRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Customer> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
-
             if (string.IsNullOrEmpty(request.Name))
             {
                 throw new ArgumentException("Name cannot be null or empty.", nameof(request.Name));
@@ -27,14 +31,21 @@ namespace BH.Case.Application.Handlers
                 throw new ArgumentException("Surname cannot be null or empty.", nameof(request.Surname));
             }
 
-            var cutomer = new Customer
-            {
-                Name = request.Name,
-                Surname = request.Surname
-            };
+            var customer = new Customer(request.Name, request.Surname);
 
-            await _cutomerRepository.AddAsync(cutomer);
-            return cutomer;
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await _customerRepository.AddAsync(customer);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _unitOfWork.CommitTransactionAsync(cancellationToken);
+                return customer;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

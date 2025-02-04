@@ -1,24 +1,34 @@
 ﻿using BH.Case.Domain.Entities;
+using BH.Case.Infrastructure.Data;
 using BH.Case.Infrastructure.Interfaces;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace BH.Case.Infrastructure.Repositories
 {
 	public class AccountRepository : IAccountRepository
 	{
-		private readonly List<Account> _accounts = new();
+		private readonly ApplicationDbContext _context;
 
-		public Task AddAsync(Account account)
+		public AccountRepository(ApplicationDbContext context)
 		{
-			account.Id = _accounts.Count + 1;
-			_accounts.Add(account);
-			return Task.CompletedTask;
+			_context = context;
 		}
 
-		public Task<IEnumerable<Account>> GetByCustomerIdAsync(int customerId)
+		public async Task AddAsync(Account account)
 		{
-			var accounts = _accounts.Where(a => a.CustomerId == customerId);
-			return Task.FromResult(accounts.AsEnumerable());
+			await _context.Accounts.AddAsync(account);
+		}
+
+		public async Task<IEnumerable<Account>> GetByCustomerIdAsync(int customerId)
+		{
+			return await _context.Accounts
+				.Where(a => a.CustomerId == customerId)
+				.ToListAsync();
+		}
+
+		public async Task<Account?> GetByIdAsync(int accountId)
+		{
+			return await _context.Accounts.FindAsync(accountId);
 		}
 	}
 }

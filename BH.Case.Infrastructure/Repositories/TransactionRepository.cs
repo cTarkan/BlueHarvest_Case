@@ -1,24 +1,30 @@
 ﻿using BH.Case.Domain.Entities;
+using BH.Case.Infrastructure.Data;
 using BH.Case.Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace BH.Case.Infrastructure.Repositories
 {
 	public class TransactionRepository : ITransactionRepository
 	{
-		private readonly List<Transaction> _transactions = new();
+		private readonly ApplicationDbContext _context;
 
-		public Task AddAsync(Transaction transaction)
+		public TransactionRepository(ApplicationDbContext context)
 		{
-			transaction.Id = _transactions.Count + 1;
-			_transactions.Add(transaction);
-			Console.WriteLine($"Transaction Added: ID={transaction.Id}, AccountID={transaction.AccountId}, Amount={transaction.Amount}");
-			return Task.CompletedTask;
+			_context = context;
 		}
 
-		public Task<IEnumerable<Transaction>> GetByAccountIdAsync(int accountId)
+		public async Task AddAsync(Transaction transaction)
 		{
-			var transactions = _transactions.Where(t => t.AccountId == accountId);
-			return Task.FromResult(transactions.AsEnumerable());
+			await _context.Transactions.AddAsync(transaction);
+		}
+
+		public async Task<IEnumerable<Transaction>> GetByAccountIdAsync(int accountId)
+		{
+			return await _context.Transactions
+				.Where(t => t.AccountId == accountId)
+				.OrderByDescending(t => t.Timestamp)
+				.ToListAsync();
 		}
 	}
 }

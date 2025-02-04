@@ -1,6 +1,7 @@
 ﻿using BH.Case.Application.Commands;
 using BH.Case.Application.Handlers;
 using BH.Case.Domain.Entities;
+using BH.Case.Infrastructure.Data;
 using BH.Case.Infrastructure.Interfaces;
 using Moq;
 
@@ -11,6 +12,7 @@ namespace BH.Case.Tests.Unit
 		private readonly Mock<IAccountRepository> _accountRepositoryMock;
 		private readonly Mock<ICustomerRepository> _customerRepositoryMock;
 		private readonly Mock<ITransactionRepository> _transactionRepositoryMock;
+		private readonly Mock<IUnitOfWork> _unitOfWorkMock;
 		private readonly CreateAccountCommandHandler _handler;
 
 		public CreateAccountCommandHandlerTests()
@@ -18,7 +20,12 @@ namespace BH.Case.Tests.Unit
 			_accountRepositoryMock = new Mock<IAccountRepository>();
 			_customerRepositoryMock = new Mock<ICustomerRepository>();
 			_transactionRepositoryMock = new Mock<ITransactionRepository>();
-			_handler = new CreateAccountCommandHandler(_accountRepositoryMock.Object, _transactionRepositoryMock.Object, _customerRepositoryMock.Object);
+			_unitOfWorkMock = new Mock<IUnitOfWork>();
+			_handler = new CreateAccountCommandHandler(
+				_accountRepositoryMock.Object,
+				_transactionRepositoryMock.Object, 
+				_customerRepositoryMock.Object,
+				_unitOfWorkMock.Object);
 		}
 
 		[Fact]
@@ -38,6 +45,7 @@ namespace BH.Case.Tests.Unit
 			Assert.NotNull(result);
 			Assert.Equal(command.CustomerId, result.CustomerId);
 			_accountRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Account>()), Times.Once);
+			_unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 		}
 
 		[Fact]

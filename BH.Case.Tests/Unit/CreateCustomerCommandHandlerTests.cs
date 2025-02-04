@@ -1,6 +1,7 @@
 using BH.Case.Application.Commands;
 using BH.Case.Application.Handlers;
 using BH.Case.Domain.Entities;
+using BH.Case.Infrastructure.Data;
 using BH.Case.Infrastructure.Interfaces;
 using Moq;
 using Xunit;
@@ -10,12 +11,16 @@ namespace BH.Case.Tests.Unit
 	public class CreateCustomerCommandHandlerTests
 	{
 		private readonly Mock<ICustomerRepository> _customerRepositoryMock;
+		private readonly Mock<IUnitOfWork> _unitOfWorkMock;
 		private readonly CreateCustomerCommandHandler _handler;
 
 		public CreateCustomerCommandHandlerTests()
 		{
 			_customerRepositoryMock = new Mock<ICustomerRepository>();
-			_handler = new CreateCustomerCommandHandler(_customerRepositoryMock.Object);
+			_unitOfWorkMock = new Mock<IUnitOfWork>();
+			_handler = new CreateCustomerCommandHandler(
+				_customerRepositoryMock.Object,
+				_unitOfWorkMock.Object);
 		}
 
 		[Fact]
@@ -36,6 +41,7 @@ namespace BH.Case.Tests.Unit
 			Assert.Equal(command.Name, result.Name);
 			Assert.Equal(command.Surname, result.Surname);
 			_customerRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Customer>()), Times.Once);
+			_unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 		}
 
 		[Theory]

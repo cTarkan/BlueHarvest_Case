@@ -12,6 +12,9 @@ namespace BH.Case.Domain.Entities
 		public int CustomerId { get; set; }
 		public decimal Balance { get; set; }
 
+		// Parameterless constructor for EF Core
+		protected Account() { }
+
 		public Account(int customerId, decimal initialCredit)
 		{
 			CustomerId = customerId;

@@ -1,7 +1,7 @@
 ﻿using BH.Case.Application.Commands;
 using BH.Case.Domain.Entities;
+using BH.Case.Infrastructure.Data;
 using BH.Case.Infrastructure.Interfaces;
-using BH.Case.Infrastructure.Repositories;
 using MediatR;
 
 namespace BH.Case.Application.Handlers
@@ -11,12 +11,18 @@ namespace BH.Case.Application.Handlers
 		private readonly IAccountRepository _accountRepository;
 		private readonly ITransactionRepository _transactionRepository;
 		private readonly ICustomerRepository _customerRepository;
+		private readonly IUnitOfWork _unitOfWork;
 
-		public CreateAccountCommandHandler(IAccountRepository accountRepository, ITransactionRepository transactionRepository, ICustomerRepository customerRepository)
+		public CreateAccountCommandHandler(
+			IAccountRepository accountRepository, 
+			ITransactionRepository transactionRepository, 
+			ICustomerRepository customerRepository,
+			IUnitOfWork unitOfWork)
 		{
 			_accountRepository = accountRepository;
 			_transactionRepository = transactionRepository;
 			_customerRepository = customerRepository;
+			_unitOfWork = unitOfWork;
 		}
 
 		public async Task<Account> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
@@ -32,17 +38,29 @@ namespace BH.Case.Application.Handlers
 				throw new KeyNotFoundException("Customer does not exist.");
 			}
 
-			var account = new Account(request.CustomerId, 0);
-			await _accountRepository.AddAsync(account);
-
-			if (request.InitialCredit > 0)
+			await _unitOfWork.BeginTransactionAsync(cancellationToken);
+			try
 			{
-				var transaction = new Transaction(account.Id, request.InitialCredit);
-				await _transactionRepository.AddAsync(transaction);
-				account.Balance += request.InitialCredit;
-			}
+				var account = new Account(request.CustomerId, 0);
+				await _accountRepository.AddAsync(account);
+				await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-			return account;
+				if (request.InitialCredit > 0)
+				{
+					var transaction = new Transaction(account.Id, request.InitialCredit);
+					await _transactionRepository.AddAsync(transaction);
+					account.Balance += request.InitialCredit;
+					await _unitOfWork.SaveChangesAsync(cancellationToken);
+				}
+
+				await _unitOfWork.CommitTransactionAsync(cancellationToken);
+				return account;
+			}
+			catch
+			{
+				await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+				throw;
+			}
 		}
 	}
 }

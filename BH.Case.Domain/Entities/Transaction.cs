@@ -7,6 +7,9 @@
 		public decimal Amount { get; set; }
 		public DateTime Timestamp { get; set; }
 
+		// Parameterless constructor for EF Core
+		protected Transaction() { }
+
 		public Transaction(int accountId, decimal amount)
 		{
 			AccountId = accountId;
