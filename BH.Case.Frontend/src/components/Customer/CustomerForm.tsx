@@ -15,9 +15,10 @@ const CustomerForm = () => {
         body: JSON.stringify({ name, surname }),
       });
       if (response.ok) {
+        const customer = await response.json();
         setName('');
         setSurname('');
-        alert('Customer created successfully!');
+        alert(`Customer created successfully! ID: ${customer.id}`);
       }
     } catch (error) {
       console.error('Error creating customer:', error);

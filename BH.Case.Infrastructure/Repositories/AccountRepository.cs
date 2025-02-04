@@ -20,5 +20,11 @@ namespace BH.Case.Infrastructure.Repositories
 			var accounts = _accounts.Where(a => a.CustomerId == customerId);
 			return Task.FromResult(accounts.AsEnumerable());
 		}
+
+		public Task<Account?> GetByIdAsync(int accountId)
+		{
+			var account = _accounts.FirstOrDefault(a => a.Id == accountId);
+			return Task.FromResult(account);
+		}
 	}
 }
