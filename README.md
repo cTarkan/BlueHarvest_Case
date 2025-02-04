@@ -6,9 +6,17 @@
 
 ## 🚀 Tech Stack
 
-- **Backend:** .NET 9, ASP.NET Core, MediatR (CQRS)
+- **Backend:** 
+  - .NET 9, ASP.NET Core
+  - MediatR (CQRS Pattern)
+  - FluentValidation
+  - xUnit & FluentAssertions (Testing)
+- **Frontend:**
+  - React 18
+  - TypeScript
+  - CSS3
 - **Database:** In-Memory Storage (for testing purposes)
-- **API Documentation:** Swagger UI
+- **API Documentation:** OpenAPI (Swagger UI)
 - **CI/CD:** GitHub Actions
 - **Containerization:** Docker & Docker Compose
 
@@ -19,14 +27,15 @@
 #### Prerequisites:
 
 - .NET 9 SDK
-- Node.js & npm
+- Node.js & npm (v18 or higher)
+- TypeScript
 - Docker (if using containerized setup)
 
 #### Steps:
 
 ```sh
 # Clone the repository
-git clone https://github.com/your-repo/BH.Case.git
+git clone https://github.com/cTarkan/BH.CASE
 cd BH.Case
 
 # Run Backend
@@ -45,118 +54,81 @@ This will start:
 
 - **Backend:** `http://localhost:8080`
 - **Swagger UI:** `http://localhost:8081`
+- **Frontend:** `http://localhost:3000`
+
 
 ## 📌 API Documentation
 
-The API documentation is available via **Swagger UI**:
-- `http://localhost:8081`
+The API documentation is available via Swagger UI at `http://localhost:8081`
 
-### **Key API Endpoints**
+### Endpoints Overview
 
-#### 1️⃣ Create Account
+#### 🧑 Customer Endpoints
 
-```http
-POST /api/account
-```
+##### Create Customer
+- **Method:** POST
+- **Endpoint:** `/api/customer`
+- **Description:** Creates a new customer in the system with basic information.
 
-**Request Body:**
+##### Get Customer
+- **Method:** GET  
+- **Endpoint:** `/api/customer/{customerId}`
+- **Description:** Retrieves basic customer information by ID.
 
-```json
-{
-  "customerId": 1,
-  "initialCredit": 100
-}
-```
+##### Get Customer Details
+- **Method:** GET
+- **Endpoint:** `/api/customer/{customerId}/details`
+- **Description:** Retrieves detailed customer information including all accounts and transactions.
 
-**Response:**
+#### 💰 Account Endpoints
 
-```json
-{
-  "accountId": 1,
-  "customerId": 1,
-  "balance": 100
-}
-```
+##### Create Account
+- **Method:** POST
+- **Endpoint:** `/api/account`
+- **Description:** Creates a new account for an existing customer. If initial credit is provided, creates an initial transaction.
 
-#### 2️⃣ Get Customer Accounts
+##### Get Customer Accounts
+- **Method:** GET
+- **Endpoint:** `/api/account/{customerId}`
+- **Description:** Retrieves all accounts associated with a customer.
 
-```http
-GET /api/account/{customerId}
-```
+#### 💸 Transaction Endpoints
 
-**Response:**
+##### Add Transaction
+- **Method:** POST
+- **Endpoint:** `/api/transaction`
+- **Description:** Adds a new transaction to an existing account.
 
-```json
-[
-  {
-    "accountId": 1,
-    "balance": 200
-  }
-]
-```
+##### Get Customer Transactions
+- **Method:** GET
+- **Endpoint:** `/api/transaction/{customerId}`
+- **Description:** Retrieves all transactions for a specific customer across all their accounts.
 
-#### 3️⃣ Add Transaction
+### Status Codes
 
-```http
-POST /api/transaction
-```
+The API uses standard HTTP status codes:
 
-**Request Body:**
+- **200 OK:** Successful GET, PUT, PATCH requests
+- **201 Created:** Successful POST requests
+- **404 Not Found:** Resource not found
+- **400 Bad Request:** Invalid request payload
 
-```json
-{
-  "accountId": 1,
-  "amount": 50
-}
-```
+### CORS Support
 
-#### 4️⃣ Get Transactions by Customer ID
-
-```http
-GET /api/transaction/{customerId}
-```
-
-**Response:**
-
-```json
-[
-  {
-    "accountId": 1,
-    "amount": 50,
-    "timestamp": "2024-06-01T12:00:00Z"
-  }
-]
-```
-
-#### 5️⃣ Get User Account Details
-
-```http
-GET /api/user/{customerId}/details
-```
-
-**Response:**
-
-```json
-{
-  "name": "John",
-  "surname": "Doe",
-  "totalBalance": 200,
-  "accounts": [
-    {
-      "accountId": 1,
-      "balance": 200,
-      "transactions": []
-    }
-  ]
-}
-```
+The API supports CORS for:
+- `http://localhost:8081` (Swagger UI)
+- `http://localhost:3000` (Frontend Application)
 
 ## 🧪 Testing
 
 ### **Run Unit & Integration Tests**
 
 ```sh
+# Run all tests
 dotnet test
+
+# Run specific test project
+dotnet test BH.Case.Tests/BH.Case.Tests.csproj
 ```
 
 ## 🛠 CI/CD Pipeline
